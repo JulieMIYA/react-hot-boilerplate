@@ -2,6 +2,7 @@ import ReactDOM from 'react-dom';
 import React, { Component } from 'react';
 import { combineReducers } from 'redux';
 import { createStore } from 'redux'
+import { Provider } from 'react-redux'
 
 /*----------------- define reducer -----------------*/
 const todo = (state, action)=>{
@@ -203,9 +204,10 @@ const TodoApp = ()=>(
 		<p style={{color:"grey"}}>Application Version 2: extract presentational element from the main container component </p>
 		<p style={{color:"grey"}}>Application Version 3: seperate presentational and container component, container component subscribe to the store for being updated whenever the state change,
 		it loads the data and specifies the behavior for realted presentational component </p>
-		<p >Application Version 4: Using React's Context ,the context essentially allows store as a global variable across the
+		<p style={{color:"grey"}}>Application Version 4: Using React's Context ,the context essentially allows store as a global variable across the
 		component tree in any deepth. So we don't need to pass 'store' to every nodes(even the presentational node which don't use the store variable) by props.
 		The container component could get access to 'context' directly in any deepth as the childContextTypes are specified. </p>
+		<p style={{color:"grey"}}>Application version 5, remove the declaration of original Provider, use Provider from React_redux Lib </p>
 		<AddTodo/>
 		<VisibleTodoList />
 		<Footer/>
@@ -216,7 +218,7 @@ const TodoApp = ()=>(
 /*----------------- define store with passing root reducer--------------
 const store = createStore(todoApp);
 */
-
+/*
 class Provider extends Component{
 	//with deinfing getChildContext FUN(), this store will be part of the context that the Provider specifies for any of its children and grandchildren.
 	getChildContext(){
@@ -231,6 +233,7 @@ class Provider extends Component{
 Provider.childContextTypes = {
 	 store: React.PropTypes.object
  }; // define the contexttype which will be passed down
+*/
 
 ReactDOM.render(
 	<Provider store={createStore(todoApp)}>
