@@ -229,7 +229,7 @@ const TodoApp = ()=>(
 		The container component could get access to 'context' directly in any deepth as the childContextTypes are specified. </p>
 		<p style={{color:"grey"}}>Application version 5, remove the declaration of original Provider, use Provider from React_redux Lib </p>
 		<p style={{color:"grey"}}>Application version 6, use connect() function from React_redux Lib, avoiding using context and subscribe/ unsubscribe to store in Components, cause connect() will handle it automatically </p>
-		<p>App version 7: add action creator, which tell your team what kinds of actions the components can dispatch, and this kind of information can be invaluable in large applications.</p>
+		<p>App version 7: Extract Action Creators, which tell your team what kinds of actions the components can dispatch, and this kind of information can be invaluable in large applications.</p>
 		<AddTodo/>
 		<VisibleTodoList />
 		<Footer/>
