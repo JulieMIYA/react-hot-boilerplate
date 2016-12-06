@@ -48,9 +48,7 @@ const todoApp = combineReducers({
 const store = createStore(todoApp);
 
 /*----------------- define components -----------------*/
-const AddTodo = ({
-	onAddClick
-	})=>{
+const AddTodo = ()=>{
 		let inputEle;
 		return (
 			<div>
@@ -59,7 +57,11 @@ const AddTodo = ({
 					()=>{
 						if(inputEle.value!=="")
 						{
-							onAddClick(inputEle.value);
+							store.dispatch({
+									type: "ADD_TODO",
+									id: nextTodoId++,
+									text: inputEle.value
+								})
 							inputEle.value= "";
 						}
 					}
@@ -82,48 +84,88 @@ const Todo = ({
 		 {text}
 		</li>
 	);
-const TodosList = ({
-		todos,
-		onTodoClick
-	}) => (
-			<ul>
-				{todos.map(todo =>
-					<Todo
-						key={todo.id} {...todo} onClick = {
-						()=> onTodoClick(todo.id)
-					}></Todo>
-				)}
-			</ul>
-		);
 
-const FilterLink = ({
-	filter,
-	currentFilter,
-	children,
-	onClick
-	}) => {
-		if(currentFilter === filter)
-			return (<span>{children}</span>);
+const TodosList = ({todos, onTodoClick}) =>(
+	<ul>
+		{todos.map(todo =>(
+			<Todo
+				key={todo.id} {...todo} onClick = {()=>onTodoClick(todo.id)
+				} />
+		))}
+	</ul>
+);
+class VisibleTodoList extends Component{
+	componentDidMount(){
+		this.unsubscribe  = store.subscribe(()=>{
+			this.forceUpdate();
+		});
+	}
+	componentWillUnmount(){
+		this.unsubscribe();
+	}
+	render(){
+		const state = store.getState();
+		return(
+			<TodosList
+				todos = {getVisibileTodos(state.todos, state.visibilityFilter)}
+				onTodoClick = {(id)=>{
+					store.dispatch({
+						type: "TOGGLE_TODO",
+						id
+					})
+				}}
+			/>
+		)
+	}
+}
+const Link = ({active, children, onClick}) =>{
+	if(active) return (<span>{children}</span>);
+	return (
+		<a href ="#"
+			onClick= { e=>{
+				e.preventDefault();
+				onClick();
+			}} >
+		{children}
+		</a>
+	);
+}
+
+class FilterLink extends Component {
+	//for ths moment , we rerender the whole application whenever the state of the store change, but it's not efficient.
+	//the method below force this component updated when the store's state change
+	componentDidMount(){
+		this.unsubscribe  = store.subscribe(()=>{
+			this.forceUpdate();
+		});
+	}
+	componentWillUnmount(){
+		this.unsubscribe();
+	}
+	render(){
+		const props = this.props;
+		const state = store.getState();
 		return (
-			<a href ="#"
-				onClick= { e=>{
-					e.preventDefault();
-					onClick(filter);
-				}} >
-			{children}
-			</a>
+			<Link
+				active = {props.filter===state.visibilityFilter}
+				onClick = {()=>{
+					store.dispatch({
+						type: 'SET_VISIBILTY_FILTER',
+						filter: props.filter
+					});
+				}}>{props.children}</Link>
 		);
 	}
-
-const Footer =({visibilityFilter, onFilterClick})=>(
+}
+const Footer =({})=>(
 	<p>
 		Show :
 		{' '}
-		<FilterLink filter = "SHOW_ALL" currentFilter = {visibilityFilter} onClick={onFilterClick}>ALL</FilterLink>
+		<FilterLink filter = "SHOW_ALL" >ALL</FilterLink>
 		{' '}
-		<FilterLink filter = "SHOW_ACTIVE" currentFilter = {visibilityFilter} onClick={onFilterClick}>ACTIVE</FilterLink>
+		<FilterLink filter = "SHOW_ACTIVE">ACTIVE</FilterLink>
 		{' '}
-		<FilterLink filter = "SHOW_COMPLETED" currentFilter = {visibilityFilter} onClick={onFilterClick}>COMPLETED</FilterLink>
+		<FilterLink filter = "SHOW_COMPLETED">COMPLETED</FilterLink>
 	</p>
 )
 
@@ -145,41 +187,17 @@ const getVisibileTodos = (todos, filter)=>{
 	}
 }
 let nextTodoId = 0;
-class TodoApp extends Component {
-  render() {
-		const {todos,visibilityFilter}= this.props;
-		const visibleTodos = getVisibileTodos(todos, visibilityFilter);
-    return (
-      <div>
-				<p style={{color:"grey"}}>Application Version 1: with one single component TodoApp </p>
-				<p>Application Version 2: extract presentational element from the main container component </p>
-				<AddTodo onAddClick = { text=>store.dispatch({
-						type: "ADD_TODO",
-						id: nextTodoId++,
-						text
-					})}
-				/>
-				<TodosList todos = {visibleTodos} onTodoClick = {id=>
-					store.dispatch({
-						type: "TOGGLE_TODO",
-						id
-					})}/>
-				<Footer visibilityFilter= {visibilityFilter}
-				 onFilterClick = {filter =>{
-					 store.dispatch({
-						 type: 'SET_VISIBILTY_FILTER',
-						 filter
-					 });
-				 }}/>
-      </div>
-    );
-  }
-}
+const TodoApp = ()=>(
+	<div>
+		<p style={{color:"grey"}}>Application Version 1: with one single component TodoApp </p>
+		<p style={{color:"grey"}}>Application Version 2: extract presentational element from the main container component </p>
+		<p >Application Version 3: seperate presentational and container component, container component subscribe to the store for being updated whenever the state change,
+		it loads the data and specifies the behavior for realted presentational component </p>
+		<AddTodo/>
+		<VisibleTodoList />
+		<Footer/>
+	</div>
+);
 
-const render  = ()=>{
-  ReactDOM.render(<TodoApp {...store.getState()} />, document.getElementById('root'));
-	//console.log(store.getState());
-}
 
-store.subscribe(render);
-render();
+ReactDOM.render(<TodoApp />, document.getElementById('root'));
