@@ -152,7 +152,7 @@ class TodoApp extends Component {
     return (
       <div>
 				<p style={{color:"grey"}}>Application Version 1: with one single component TodoApp </p>
-				<p>Application Version 2: extract several element from the parent component </p>
+				<p>Application Version 2: extract presentational element from the main container component </p>
 				<AddTodo onAddClick = { text=>store.dispatch({
 						type: "ADD_TODO",
 						id: nextTodoId++,
