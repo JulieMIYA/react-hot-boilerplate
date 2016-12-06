@@ -86,6 +86,20 @@ AddTodo = connect(null, (d) => {
     return { d };
   })(AddTodo);
 
+/*----------------- set action creator ----------------*/
+const setVisibilityFilter = (filter) => {
+	return {
+		type: 'SET_VISIBILTY_FILTER',
+		filter
+	}
+}
+const toggleTodo = (id)=>{
+	return {
+		type: 'TOGGLE_TODO',
+		id
+	}
+}
+
 
 // don't sepcify the action of component, but declare only the presentation of the component
 const Todo = ({
@@ -122,10 +136,7 @@ const mapStateToTodosListProps = (state) => {
 const mapDispatchToTodosListProps = (dispatch) => {
   return {
     onTodoClick: (id) => {
-        dispatch({
-        type: 'TOGGLE_TODO',
-        id
-      })
+        dispatch(toggleTodo(id))
     }
   };
 };
@@ -142,10 +153,7 @@ const mapStateToFilterProps = (state, ownProps) => {
 const mapDispatchToFilterProps = (dispatch, ownProps)=> {
 	return {
 		onClick : ()=>{
-			dispatch({
-				type: 'SET_VISIBILTY_FILTER',
-				filter: ownProps.filter
-			});
+			dispatch(setVisibilityFilter(ownProps.filter));
 		}
 	}
 };
@@ -220,8 +228,8 @@ const TodoApp = ()=>(
 		component tree in any deepth. So we don't need to pass 'store' to every nodes(even the presentational node which don't use the store variable) by props.
 		The container component could get access to 'context' directly in any deepth as the childContextTypes are specified. </p>
 		<p style={{color:"grey"}}>Application version 5, remove the declaration of original Provider, use Provider from React_redux Lib </p>
-		<p >Application version 6, use connect() function from React_redux Lib, avoiding using context and subscribe/ unsubscribe to store in Components, cause connect() will handle it automatically </p>
-
+		<p style={{color:"grey"}}>Application version 6, use connect() function from React_redux Lib, avoiding using context and subscribe/ unsubscribe to store in Components, cause connect() will handle it automatically </p>
+		<p>App version 7: add action creator, which tell your team what kinds of actions the components can dispatch, and this kind of information can be invaluable in large applications.</p>
 		<AddTodo/>
 		<VisibleTodoList />
 		<Footer/>
