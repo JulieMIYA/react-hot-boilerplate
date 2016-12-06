@@ -1,6 +1,6 @@
 
 ### Based on React Hot Boilerplate, this repos follows this [list of Redux Tutorial](https://lnkd.in/dq2urfu) by Dan Abramov(creator of Redux), created a simple Todo Application in React-Redux way ! 
-
+=====================
 
 
 
