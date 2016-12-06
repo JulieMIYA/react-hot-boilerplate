@@ -2,7 +2,7 @@ import ReactDOM from 'react-dom';
 import React, { Component } from 'react';
 import { combineReducers } from 'redux';
 import { createStore } from 'redux'
-import { Provider } from 'react-redux'
+import { Provider, connect } from 'react-redux'
 
 /*----------------- define reducer -----------------*/
 const todo = (state, action)=>{
@@ -45,142 +45,6 @@ const todoApp = combineReducers({
   todos,visibilityFilter
 });
 
-
-/*----------------- define components -----------------*/
-const AddTodo =  (props, { store })=>{
-	//functional components receive the context but as a second argument after the props
-		let inputEle;
-		return (
-			<div>
-				<input ref={node=>{inputEle = node; }}/>
-				<button onClick= {
-					()=>{
-						if(inputEle.value!=="")
-						{
-							store.dispatch({
-									type: "ADD_TODO",
-									id: nextTodoId++,
-									text: inputEle.value
-								})
-							inputEle.value= "";
-						}
-					}
-				}>Add Todo</button>
-			</div>
-		);
-};
-AddTodo.contextTypes = {
-  store: React.PropTypes.object
-};
-// don't sepcify the action of component, but declare only the presentation of the component
-const Todo = ({
-	onClick, completed, text
-	})=>(
-		<li
-		  onClick={
-				onClick
-		}
-		 style= {{
-			 textDecoration: completed? 'line-through': 'none'
-		 }}>
-		 {text}
-		</li>
-	);
-
-const TodosList = ({todos, onTodoClick}) =>(
-	<ul>
-		{todos.map(todo =>(
-			<Todo
-				key={todo.id} {...todo} onClick = {()=>onTodoClick(todo.id)
-				} />
-		))}
-	</ul>
-);
-class VisibleTodoList extends Component{
-	componentDidMount(){
-		const {store} = this.context;
-		this.unsubscribe  = store.subscribe(()=>{
-			this.forceUpdate();
-		});
-	}
-	componentWillUnmount(){
-		this.unsubscribe();
-	}
-	render(){
-		const {store} = this.context;
-		const state = store.getState();
-		return(
-			<TodosList
-				todos = {getVisibileTodos(state.todos, state.visibilityFilter)}
-				onTodoClick = {(id)=>{
-					store.dispatch({
-						type: "TOGGLE_TODO",
-						id
-					})
-				}}
-			/>
-		)
-	}
-}
-VisibleTodoList.contextTypes = {
-  store: React.PropTypes.object
-};
-const Link = ({active, children, onClick}) =>{
-	if(active) return (<span>{children}</span>);
-	return (
-		<a href ="#"
-			onClick= { e=>{
-				e.preventDefault();
-				onClick();
-			}} >
-		{children}
-		</a>
-	);
-}
-
-class FilterLink extends Component {
-	componentDidMount(){
-		const {store} = this.context;
-		this.unsubscribe  = store.subscribe(()=>{
-			this.forceUpdate();
-		});
-	}
-	componentWillUnmount(){
-		this.unsubscribe();
-	}
-	render(){
-		const props = this.props;
-		const {store}= this.context;
-		const state = store.getState();
-		return (
-			<Link
-				active = {props.filter===state.visibilityFilter}
-				onClick = {()=>{
-					store.dispatch({
-						type: 'SET_VISIBILTY_FILTER',
-						filter: props.filter
-					});
-				}}>{props.children}</Link>
-		);
-	}
-}
-FilterLink.contextTypes = {
-  store: React.PropTypes.object
-};
-const Footer =({})=>(
-	<p>
-		Show :
-		{' '}
-		<FilterLink filter = "SHOW_ALL" >ALL</FilterLink>
-		{' '}
-		<FilterLink filter = "SHOW_ACTIVE">ACTIVE</FilterLink>
-		{' '}
-		<FilterLink filter = "SHOW_COMPLETED">COMPLETED</FilterLink>
-	</p>
-)
-
-
-
 const getVisibileTodos = (todos, filter)=>{
 	switch (filter){
 		case "SHOW_ALL":
@@ -196,6 +60,154 @@ const getVisibileTodos = (todos, filter)=>{
 		default : return todos;;
 	}
 }
+/*----------------- define components -----------------*/
+let AddTodo =  ({d})=>{
+		let inputEle;
+		return (
+			<div>
+				<input ref={node=>{inputEle = node; }}/>
+				<button onClick= {
+					()=>{
+						if(inputEle.value!=="")
+						{
+							d({
+									type: "ADD_TODO",
+									id: nextTodoId++,
+									text: inputEle.value
+								})
+							inputEle.value= "";
+						}
+					}
+				}>Add Todo</button>
+			</div>
+		);
+};
+AddTodo = connect(null, (d) => {
+    return { d };
+  })(AddTodo);
+
+
+// don't sepcify the action of component, but declare only the presentation of the component
+const Todo = ({
+	onClick, completed, text
+	})=>(
+		<li
+		  onClick={
+				onClick
+		}
+		 style= {{
+			 textDecoration: completed? 'line-through': 'none'
+		 }}>
+		 {text}
+		</li>
+	);
+const TodosList = ({todos, onTodoClick}) =>(
+	<ul>
+		{todos.map(todo =>(
+			<Todo
+				key={todo.id} {...todo} onClick = {()=>onTodoClick(todo.id)
+				} />
+		))}
+	</ul>
+);
+
+const mapStateToTodosListProps = (state) => {
+	return {
+		todos : getVisibileTodos(
+			state.todos,
+			state.visibilityFilter
+		)
+	};
+};
+const mapDispatchToTodosListProps = (dispatch) => {
+  return {
+    onTodoClick: (id) => {
+        dispatch({
+        type: 'TOGGLE_TODO',
+        id
+      })
+    }
+  };
+};
+const VisibleTodoList = connect(
+  mapStateToTodosListProps,
+  mapDispatchToTodosListProps
+)(TodosList);
+
+const mapStateToFilterProps = (state, ownProps) => {
+	return {
+		active : ownProps.filter === state.visibilityFilter
+	}
+};
+const mapDispatchToFilterProps = (dispatch, ownProps)=> {
+	return {
+		onClick : ()=>{
+			dispatch({
+				type: 'SET_VISIBILTY_FILTER',
+				filter: ownProps.filter
+			});
+		}
+	}
+};
+
+const Link = ({active, children, onClick}) =>{
+	if(active) return (<span>{children}</span>);
+	return (
+		<a href ="#"
+			onClick= { e=>{
+				e.preventDefault();
+				onClick();
+			}} >
+		{children}
+		</a>
+	);
+}
+
+const FilterLink = connect(mapStateToFilterProps, mapDispatchToFilterProps)(Link);
+// except for the props from mapStateToFilterProps and mapDispatchToFilterProps , link will get all the props FilterLink has, like children !!!!!!
+// class FilterLink extends Component {
+// 	componentDidMount(){
+// 		const {store} = this.context;
+// 		this.unsubscribe  = store.subscribe(()=>{
+// 			this.forceUpdate();
+// 		});
+// 	}
+// 	componentWillUnmount(){
+// 		this.unsubscribe();
+// 	}
+// 	render(){
+// 		const props = this.props;
+// 		const {store}= this.context;
+// 		const state = store.getState();
+// 		return (
+// 			<Link
+// 				active= {props.filter === state.visibilityFilter}
+// 				onClick = {()=>{
+// 					store.dispatch({
+// 						type: 'SET_VISIBILTY_FILTER',
+// 						filter: props.filter
+// 					});
+// 				}} >{props.children}</Link>
+// 		);
+// 	}
+// }
+// FilterLink.contextTypes = {
+//   store: React.PropTypes.object
+// };
+
+const Footer =({})=>(
+	<p>
+		Show :
+		{' '}
+		<FilterLink filter = "SHOW_ALL" >ALL</FilterLink>
+		{' '}
+		<FilterLink filter = "SHOW_ACTIVE">ACTIVE</FilterLink>
+		{' '}
+		<FilterLink filter = "SHOW_COMPLETED">COMPLETED</FilterLink>
+	</p>
+)
+
+
 let nextTodoId = 0;
 
 const TodoApp = ()=>(
@@ -208,6 +220,8 @@ const TodoApp = ()=>(
 		component tree in any deepth. So we don't need to pass 'store' to every nodes(even the presentational node which don't use the store variable) by props.
 		The container component could get access to 'context' directly in any deepth as the childContextTypes are specified. </p>
 		<p style={{color:"grey"}}>Application version 5, remove the declaration of original Provider, use Provider from React_redux Lib </p>
+		<p >Application version 6, use connect() from React_redux Lib, avoiding using context and subscribe/ unsubscribe to store in Components, cause connect() will handle it automatically </p>
+
 		<AddTodo/>
 		<VisibleTodoList />
 		<Footer/>
