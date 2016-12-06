@@ -44,11 +44,10 @@ const todoApp = combineReducers({
   todos,visibilityFilter
 });
 
-/*----------------- define store with passing root reducer -----------------*/
-const store = createStore(todoApp);
 
 /*----------------- define components -----------------*/
-const AddTodo = ()=>{
+const AddTodo =  (props, { store })=>{
+	//functional components receive the context but as a second argument after the props
 		let inputEle;
 		return (
 			<div>
@@ -69,7 +68,9 @@ const AddTodo = ()=>{
 			</div>
 		);
 };
-
+AddTodo.contextTypes = {
+  store: React.PropTypes.object
+};
 // don't sepcify the action of component, but declare only the presentation of the component
 const Todo = ({
 	onClick, completed, text
@@ -96,6 +97,7 @@ const TodosList = ({todos, onTodoClick}) =>(
 );
 class VisibleTodoList extends Component{
 	componentDidMount(){
+		const {store} = this.context;
 		this.unsubscribe  = store.subscribe(()=>{
 			this.forceUpdate();
 		});
@@ -104,6 +106,7 @@ class VisibleTodoList extends Component{
 		this.unsubscribe();
 	}
 	render(){
+		const {store} = this.context;
 		const state = store.getState();
 		return(
 			<TodosList
@@ -118,6 +121,9 @@ class VisibleTodoList extends Component{
 		)
 	}
 }
+VisibleTodoList.contextTypes = {
+  store: React.PropTypes.object
+};
 const Link = ({active, children, onClick}) =>{
 	if(active) return (<span>{children}</span>);
 	return (
@@ -132,9 +138,8 @@ const Link = ({active, children, onClick}) =>{
 }
 
 class FilterLink extends Component {
-	//for ths moment , we rerender the whole application whenever the state of the store change, but it's not efficient.
-	//the method below force this component updated when the store's state change
 	componentDidMount(){
+		const {store} = this.context;
 		this.unsubscribe  = store.subscribe(()=>{
 			this.forceUpdate();
 		});
@@ -144,6 +149,7 @@ class FilterLink extends Component {
 	}
 	render(){
 		const props = this.props;
+		const {store}= this.context;
 		const state = store.getState();
 		return (
 			<Link
@@ -157,6 +163,9 @@ class FilterLink extends Component {
 		);
 	}
 }
+FilterLink.contextTypes = {
+  store: React.PropTypes.object
+};
 const Footer =({})=>(
 	<p>
 		Show :
@@ -187,12 +196,16 @@ const getVisibileTodos = (todos, filter)=>{
 	}
 }
 let nextTodoId = 0;
+
 const TodoApp = ()=>(
 	<div>
 		<p style={{color:"grey"}}>Application Version 1: with one single component TodoApp </p>
 		<p style={{color:"grey"}}>Application Version 2: extract presentational element from the main container component </p>
-		<p >Application Version 3: seperate presentational and container component, container component subscribe to the store for being updated whenever the state change,
+		<p style={{color:"grey"}}>Application Version 3: seperate presentational and container component, container component subscribe to the store for being updated whenever the state change,
 		it loads the data and specifies the behavior for realted presentational component </p>
+		<p >Application Version 4: Using React's Context ,the context essentially allows store as a global variable across the
+		component tree in any deepth. So we don't need to pass 'store' to every nodes(even the presentational node which don't use the store variable) by props.
+		The container component could get access to 'context' directly in any deepth as the childContextTypes are specified. </p>
 		<AddTodo/>
 		<VisibleTodoList />
 		<Footer/>
@@ -200,4 +213,26 @@ const TodoApp = ()=>(
 );
 
 
-ReactDOM.render(<TodoApp />, document.getElementById('root'));
+/*----------------- define store with passing root reducer--------------
+const store = createStore(todoApp);
+*/
+
+class Provider extends Component{
+	//with deinfing getChildContext FUN(), this store will be part of the context that the Provider specifies for any of its children and grandchildren.
+	getChildContext(){
+		return {
+			store: this.props.store
+		};
+	}
+	render() {
+    return this.props.children;
+  }
+}
+Provider.childContextTypes = {
+	 store: React.PropTypes.object
+ }; // define the contexttype which will be passed down
+
+ReactDOM.render(
+	<Provider store={createStore(todoApp)}>
+    <TodoApp />
+  </Provider>, document.getElementById('root'));
