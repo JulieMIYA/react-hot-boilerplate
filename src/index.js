@@ -219,8 +219,8 @@ const TodoApp = ()=>(
 		<p style={{color:"grey"}}>Application Version 4: Using React's Context ,the context essentially allows store as a global variable across the
 		component tree in any deepth. So we don't need to pass 'store' to every nodes(even the presentational node which don't use the store variable) by props.
 		The container component could get access to 'context' directly in any deepth as the childContextTypes are specified. </p>
-		<p style={{color:"grey"}}>App version 5, remove the declaration of original Provider, use Provider from React_redux Lib </p>
-		<p >App version 6, use connect() function from React_redux Lib, avoiding using context and subscribe/ unsubscribe to store in Components, cause connect() will handle it automatically </p>
+		<p style={{color:"grey"}}>Application version 5, remove the declaration of original Provider, use Provider from React_redux Lib </p>
+		<p >Application version 6, use connect() function from React_redux Lib, avoiding using context and subscribe/ unsubscribe to store in Components, cause connect() will handle it automatically </p>
 
 		<AddTodo/>
 		<VisibleTodoList />
