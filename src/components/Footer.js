@@ -5,11 +5,11 @@ const Footer =({})=>(
     <p>
         Show :
         {' '}
-        <FilterLink filter = "SHOW_ALL" >ALL</FilterLink>
+        <FilterLink filter = "all" >ALL</FilterLink>
         {' '}
-        <FilterLink filter = "SHOW_ACTIVE">ACTIVE</FilterLink>
+        <FilterLink filter = "active">ACTIVE</FilterLink>
         {' '}
-        <FilterLink filter = "SHOW_COMPLETED">COMPLETED</FilterLink>
+        <FilterLink filter = "completed">COMPLETED</FilterLink>
     </p>
 )
 export default Footer;

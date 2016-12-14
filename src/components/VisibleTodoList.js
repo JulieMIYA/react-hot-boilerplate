@@ -1,40 +1,17 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { toggleTodo } from '../actionCreator'
+import { withRouter } from 'react-router';
+import { getVisibleTodos } from '../reducers'
 
-
-const getVisibileTodos = (todos, filter)=>{
-    switch (filter){
-        case "SHOW_ALL":
-            return todos;
-        case "SHOW_ACTIVE":
-            return todos.filter(
-                t=> !t.completed
-            )
-        case "SHOW_COMPLETED":
-            return todos.filter(
-                t=> t.completed
-            )
-        default : return todos;;
-    }
-}
-const mapStateToTodosListProps = (state) => {
+const mapStateToTodosListProps = (state, {params}) => {
     return {
-        todos : getVisibileTodos(
-            state.todos,
-            state.visibilityFilter
+        todos : getVisibleTodos(
+            state,
+            params.filter || 'all'
         )
     };
 };
-
-const mapDispatchToTodosListProps = (dispatch) => {
-    return {
-        onTodoClick: (id) => {
-            dispatch(toggleTodo(id))
-        }
-    };
-};
-
 
 
 const Todo = ({onClick, completed, text})=>(
@@ -61,9 +38,13 @@ const TodosList = ({todos, onTodoClick}) =>(
 
 
 
-const VisibleTodoList = connect(
+const VisibleTodoList = withRouter(connect(
     mapStateToTodosListProps,
-    mapDispatchToTodosListProps
-)(TodosList);
+    { onTodoClick: toggleTodo }
+)(TodosList));
+//withRouter is handy when you need to read the current params somewhere deep in the component tree.
+//takes a React component (TodoLists) and
+//returns a different React component (VisibleTodoList)
+// that injects the router-related props, such as params
 
 export default VisibleTodoList;
