@@ -1,15 +1,32 @@
-import React from 'react'
+import React ,{ Component } from 'react'
 import { connect } from 'react-redux'
-import { toggleTodo } from '../actionCreator'
+import { toggleTodo , fetchTodos } from '../actionCreator'
 import { withRouter } from 'react-router';
 import { getVisibleTodos } from '../reducers'
 
-const mapStateToTodosListProps = (state, {params}) => {
+class VisibleTodoList extends Component {
+    fetchData() {
+        const { filter, fetchTodos } = this.props;
+        fetchTodos(filter);
+    }
+    componentDidMount() {
+        this.fetchData();
+    }
+    componentDidUpdate(prevProps) {
+        if (this.props.filter !== prevProps.filter) {
+            this.fetchData();
+        }
+    }
+    render() {
+        return <TodosList {...this.props} />
+  }
+}
+
+const mapStateToTodosListProps = (state, { params }) => {
+    const filter = params.filter || 'all';
     return {
-        todos : getVisibleTodos(
-            state,
-            params.filter || 'all'
-        )
+        todos : getVisibleTodos(state,filter),
+        filter
     };
 };
 
@@ -38,10 +55,10 @@ const TodosList = ({todos, onTodoClick}) =>(
 
 
 
-const VisibleTodoList = withRouter(connect(
+VisibleTodoList = withRouter(connect(
     mapStateToTodosListProps,
-    { onTodoClick: toggleTodo }
-)(TodosList));
+    { onTodoClick: toggleTodo , fetchTodos }
+)(VisibleTodoList));
 //withRouter is handy when you need to read the current params somewhere deep in the component tree.
 //takes a React component (TodoLists) and
 //returns a different React component (VisibleTodoList)

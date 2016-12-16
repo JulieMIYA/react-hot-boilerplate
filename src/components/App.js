@@ -7,7 +7,9 @@ import VisibleTodoList from './VisibleTodoList'
 
 const App = ({ params })=>(
     <div>
-        <p>App version 11: Override dispatch function to log actions
+        <p>App version 12: Add asynchronous action creator, by the way, override the dispatch
+            function to accept a promise of action.(By default, the dispatch() only allow
+            a plain object as an action rather than a promise of action
         </p>
         <AddTodo/>
         <VisibleTodoList />
