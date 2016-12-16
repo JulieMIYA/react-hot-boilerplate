@@ -4,40 +4,51 @@ import todoApp from './reducers'
 import { createStore } from 'redux'
 
 const addLoggingToDispatch = (store) => {
-    const rawDispatch = store.dispatch;
-    return (action) => {
-        console.group(action.type);
-        console.log('%c prev state', 'color: gray', store.getState());
-        console.log('%c action', 'color: blue', action);
-        const returnValue = rawDispatch(action);
-        console.log('%c next state', 'color: green', store.getState());
-        console.groupEnd(action.type);
-        return returnValue;
-    };
+    const next = store.dispatch;
+    if (!console.group) {
+        return next;
+    }else{
+        return (action) => {
+            console.group(action.type);
+            console.log('%c prev state', 'color: gray', store.getState());
+            console.log('%c action', 'color: blue', action);
+            const returnValue = next(action);
+            console.log('%c next state', 'color: green', store.getState());
+            console.groupEnd(action.type);
+            return returnValue;
+        };
+    }
 };
+
 const addPromiseSupportToDispatch = (store) => {
-    const rawDispatch = store.dispatch;
+    const next = store.dispatch;
     return (action) => {
         if (typeof action.then === 'function') {
-            return action.then(rawDispatch);
+            return action.then(next);
         }
-        return rawDispatch(action);
+        return next(action);
     };
 }
+
+const wrapDispatchWithMiddlewares = (store, middlewares) => {
+    middlewares.forEach(middleware =>
+        store.dispatch = middleware(store)
+    );
+};
 
 const configureStore = () => {
     //const persistedData = loadState();
     const store = createStore(
         todoApp
     )
+    const middlewares = []; //an array of functions that will be applied later as a single step.
+
     if (process.env.NODE_ENV !== 'production') {
-        store.dispatch = addLoggingToDispatch(store);
+        middlewares.push(addLoggingToDispatch);
     }
-    store.dispatch = addPromiseSupportToDispatch(store);
-    /*
-    store.subscribe(throttle(() => {
-        saveState({todos: store.getState().todos});
-    }, 1000));*/
+
+    middlewares.push(addPromiseSupportToDispatch);
+    wrapDispatchWithMiddlewares(store, middlewares);
     return store;
 }
 
