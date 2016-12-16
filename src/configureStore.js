@@ -3,8 +3,8 @@ import todoApp from './reducers'
 
 import { createStore } from 'redux'
 
-const addLoggingToDispatch = (store) => {
-    const next = store.dispatch;
+const addLoggingToDispatch = (store) => (next) =>{
+    //const next = store.dispatch;
     if (!console.group) {
         return next;
     }else{
@@ -20,19 +20,15 @@ const addLoggingToDispatch = (store) => {
     }
 };
 
-const addPromiseSupportToDispatch = (store) => {
-    const next = store.dispatch;
-    return (action) => {
+const addPromiseSupportToDispatch = (store) => (next)=> (action) => {
         if (typeof action.then === 'function') {
             return action.then(next);
         }
         return next(action);
-    };
-}
-
+    }
 const wrapDispatchWithMiddlewares = (store, middlewares) => {
     middlewares.forEach(middleware =>
-        store.dispatch = middleware(store)
+        store.dispatch = middleware(store)(store.dispatch)
     );
 };
 
