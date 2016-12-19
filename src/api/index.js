@@ -4,7 +4,7 @@ const fakeDatabase = {
         {
             id:v4(),
             text: 'key',
-            completed: true
+            completed: false
         },
         {
             id:v4(),

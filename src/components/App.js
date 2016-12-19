@@ -7,8 +7,7 @@ import VisibleTodoList from './VisibleTodoList'
 
 const App = ({ params })=>(
     <div>
-        <p>App version 14: Use ApplyMiddleware rather than override dispatch manually:
-            ApplyMiddleware() return a store enhancer which applies the given middleware
+        <p>App version 15: Show loading indicator
         </p>
         <AddTodo/>
         <VisibleTodoList />

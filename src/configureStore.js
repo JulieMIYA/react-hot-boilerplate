@@ -1,6 +1,5 @@
 //import rootreducer
-import todoApp from './reducers'
-
+import todos from './reducers'
 
 import { createStore , applyMiddleware } from 'redux'
 //import middleware
@@ -11,20 +10,17 @@ import createLogger from 'redux-logger'
 const configureStore = () => {
     //const persistedData = loadState();
 
-    const middlewares = [];
+    const middlewares = [promise];
     if (process.env.NODE_ENV !== 'production') {
         middlewares.push(createLogger());
     }
-    middlewares.push(promise);
-
     const store = createStore(
-        todoApp,
+        todos,
         // initalState ,
         applyMiddleware(...middlewares) // A store enhancer that applies the given middleware.
     );
 
     return store;
 }
-
 
 export default configureStore;
