@@ -3,15 +3,15 @@ import todos from './reducers'
 
 import { createStore , applyMiddleware } from 'redux'
 //import middleware
-//import promise from 'redux-promise'
+import thunk from 'redux-thunk'
 import createLogger from 'redux-logger'
 
 
-const thunk = (store) => (next) => (action) =>(
+/*const thunk = (store) => (next) => (action) =>(
     typeof action === 'function' ?
-        action(store.dispatch) :
+        action(store.dispatch, store.getState) :
         next(action)
-)
+)*/
 const configureStore = () => {
     //const persistedData = loadState();
 
