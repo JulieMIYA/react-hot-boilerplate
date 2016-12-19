@@ -7,7 +7,7 @@ import VisibleTodoList from './VisibleTodoList'
 
 const App = ({ params })=>(
     <div>
-        <p>App version 15: Show loading indicator
+        <p>App version 16: Remove promise, use thunk instead
         </p>
         <AddTodo/>
         <VisibleTodoList />
