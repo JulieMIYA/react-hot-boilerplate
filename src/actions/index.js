@@ -5,10 +5,10 @@ import * as schema from './schema';
 
 export const addTodo = (text) => (dispatch) =>{
     api.addTodos(text).then(response => {
-        //console.log('normalized response', normalize(response,schema.arrayOfTodos));
+        //console.log('normalized response', );
         dispatch({
             type: "ADD_TODO_SUCCESS",
-            response
+            response: normalize(response,schema.todo)
         })
     })
 }
@@ -26,11 +26,11 @@ export const fetchTodos = (filter) => (dispatch,getState) => {
     });
     return api.fetchTodos(filter).then(
         response => {
-            //console.log('normalized response', normalize(response,schema.arrayOfTodos));
+            //console.log('normalized response', ));
             dispatch({
                 type: 'FETCH_TODOS_SUCCESS',
                 filter,
-                response,
+                response: normalize(response,schema.arrayOfTodos),
             });
         },
         error =>{
