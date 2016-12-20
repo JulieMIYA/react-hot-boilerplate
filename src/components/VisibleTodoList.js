@@ -1,8 +1,9 @@
 import React ,{ Component } from 'react'
 import { connect } from 'react-redux'
-import { toggleTodo , fetchTodos , requestTodos } from '../actionCreator'
+import { toggleTodo , fetchTodos  } from '../actions'
 import { withRouter } from 'react-router';
-import { getVisibleTodos , getIsFetching } from '../reducers'
+import { getVisibleTodos , getIsFetching , getErrorMessage } from '../reducers'
+import FetchError from './FetchError'
 
 class VisibleTodoList extends Component {
     fetchData() {
@@ -18,22 +19,31 @@ class VisibleTodoList extends Component {
         }
     }
     render() {
-        const { isFetching, todos, onTodoClick } = this.props;
+        const { isFetching, todos, errorMessage, onTodoClick } = this.props;
         if (isFetching && !todos.length) {
             return <p>Loading...</p>;
         }
+        if (errorMessage && !todos.length){
+            return(
+                <FetchError
+                    message = { errorMessage }
+                    onRetry = {()=>this.fetchData()}
+                />
+            )
+        }
         return (
             <TodosList
-                todos= {todos}
+                todos= { todos }
                 onTodoClick= {onTodoClick} />
         )
     }
 }
 
-const mapStateToTodosListProps = (state, { params }) => {
+const mapStateToTodosListProps = ( state , { params }) => {
     const filter = params.filter || 'all';
     return {
         todos : getVisibleTodos(state,filter),
+        errorMessage : getErrorMessage(state, filter),
         isFetching: getIsFetching(state, filter),
         filter
     };
@@ -41,13 +51,8 @@ const mapStateToTodosListProps = (state, { params }) => {
 
 
 const Todo = ({onClick, completed, text})=>(
-    <li
-        onClick={
-            onClick
-        }
-        style= {{
-            textDecoration: completed? 'line-through': 'none'
-        }}>
+    <li onClick={ onClick }
+        style= {{ textDecoration: completed ? 'line-through': 'none'}}>
         {text}
     </li>
 );
@@ -62,12 +67,12 @@ const TodosList = ({todos, onTodoClick}) => {
             ))}
         </ul>
     )
-    }
+}
 
 
 VisibleTodoList = withRouter(connect(
     mapStateToTodosListProps,
-    { onTodoClick: toggleTodo , fetchTodos , requestTodos}
+    { onTodoClick: toggleTodo , fetchTodos }
 )(VisibleTodoList));
 //withRouter is handy when you need to read the current params somewhere deep in the component tree.
 //takes a React component (TodoLists) and

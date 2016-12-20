@@ -1,8 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux'
-import { addTodo } from '../actionCreator'
+import { addTodo } from '../actions/index'
 
-let AddTodo =  ({d})=>{
+let AddTodo =  ({addTodo})=>{
     let inputEle;
     return (
         <div>
@@ -11,7 +11,7 @@ let AddTodo =  ({d})=>{
                 ()=>{
                     if(inputEle.value!=="")
                     {
-                        d(addTodo(inputEle.value))
+                        addTodo(inputEle.value)
                         inputEle.value= "";
                     }
                 }
@@ -19,8 +19,6 @@ let AddTodo =  ({d})=>{
         </div>
     );
 };
-AddTodo = connect(null, (d) => {
-    return { d };
-})(AddTodo);
+AddTodo = connect(null,{addTodo})(AddTodo);
 
 export default AddTodo;

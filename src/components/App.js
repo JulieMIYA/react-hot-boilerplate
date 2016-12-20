@@ -7,7 +7,7 @@ import VisibleTodoList from './VisibleTodoList'
 
 const App = ({ params })=>(
     <div>
-        <p>App version 16: Remove promise, use thunk instead
+        <p>App version 17: Create data on server
         </p>
         <AddTodo/>
         <VisibleTodoList />
